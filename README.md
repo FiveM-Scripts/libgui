@@ -1,6 +1,6 @@
 #libgui
 
-*NOTE: Very very early in progress right now, documentation will come alongside code progress!*
+**NOTE: Very very early in progress right now, documentation will come alongside code progress!**
 
 A GUI library for FiveM, featuring (or rather is going to feature):
 
