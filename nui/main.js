@@ -1,6 +1,6 @@
 var rootElement;
 var documentElement;
-var windows;
+const windows = [];
 var isDraggingWindow;
 var hasDraggedWindow;
 var draggingWindow;
@@ -10,7 +10,7 @@ $(function()
 {
     init();
     unfocus();
-    createWindow(-1, -1, null, [ "<p>Hi Dorifto</p>" ]);
+    createWindow(-1, -1, null, [ "<p>Hi Dorifto</p>", "<p>Bye Dorifto</p>" ]);
     /*createWindow(500, 500, "Hi", "I'm a PC");
     createWindow(200, 600, "Good Day", "My name is Clippy");
     createWindow(100, 250, "You have spam mail!", "null");*/
@@ -18,7 +18,6 @@ $(function()
 
 function init()
 {
-    windows = [];
     isDraggingWindow = false;
     hasDraggedWindow = false;
     rootElement = $("#root");
@@ -32,7 +31,6 @@ function init()
 
     documentElement.keyup(function(event)
     {
-        console.log(event.which);
         if (event.which == 27) // ESC
             unfocus();
     });

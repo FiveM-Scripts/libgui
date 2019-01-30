@@ -10,5 +10,7 @@ files {
 ui_page "nui/main.html"
 
 client_scripts {
-    "js/cl_main.js"
+    "js/cl_main.js",
+    "js/cl_api.js",
+    "js/cl_test.js"
 }
