@@ -9,10 +9,11 @@ var draggingPrevMousePos;
 $(function()
 {
     init();
-    createWindow(-1, -1, "Hello", "I'm a Mac");
-    createWindow(500, 500, "Hi", "I'm a PC");
+    unfocus();
+    createWindow(-1, -1, null, [ "<p>Hi Dorifto</p>" ]);
+    /*createWindow(500, 500, "Hi", "I'm a PC");
     createWindow(200, 600, "Good Day", "My name is Clippy");
-    createWindow(100, 250, "You have spam mail!", "null");
+    createWindow(100, 250, "You have spam mail!", "null");*/
 });
 
 function init()
@@ -31,7 +32,8 @@ function init()
 
     documentElement.keyup(function(event)
     {
-        if (event.which == 116) // F5
+        console.log(event.which);
+        if (event.which == 27) // ESC
             unfocus();
     });
 
@@ -50,13 +52,16 @@ function init()
         hasDraggedWindow = true;
     });
 
-    rootElement.mouseup(function()
+    rootElement.mouseup(function(event)
     {
-        isDraggingWindow = false;
-        hasDraggedWindow = false;
+        if (isDraggingWindow)
+        {
+            isDraggingWindow = false;
+            hasDraggedWindow = false;
+        }
+        else if (event.target == this) // Close on click anywhere
+            unfocus();
     });
-
-    unfocus();
 }
 
 function unfocus()
@@ -77,9 +82,9 @@ function createWindow(height, width, title, content)
     if (width < 0)
         width = 400;
     if (!title)
-        title = "null";
+        title = "";
     if (!content)
-        content = "null";
+        content = [];
 
     var windowElement = $("<div class='window'></div>");
     windowElement.height(height);
@@ -97,8 +102,10 @@ function createWindow(height, width, title, content)
     windowElement.append(windowTitleSeperatorElement);
     var windowContentElement = $("<div class='windowcontent'>");
     windowElement.append(windowContentElement);
-    var windowContentTextElement = $("<p class='windowtext'>" + content + "</p>");
-    windowContentElement.append(windowContentTextElement);
+    content.forEach(function(element)
+    {
+        windowContentElement.append(element);
+    });
 
     var windowData = {
         windowElement: windowElement,
@@ -108,7 +115,7 @@ function createWindow(height, width, title, content)
         titleCloseImgElement: titleCloseImgElement,
         windowTitleSeperatorElement: windowTitleSeperatorElement,
         windowContentElement: windowContentElement,
-        windowContentTextElement: windowContentTextElement
+        windowContentItems: content
     };
 
     windowElement.mousedown(function(event)
