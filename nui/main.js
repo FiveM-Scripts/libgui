@@ -2,6 +2,7 @@ var rootElement;
 var documentElement;
 var windows;
 var isDraggingWindow;
+var hasDraggedWindow;
 var draggingWindow;
 var draggingPrevMousePos;
 
@@ -18,6 +19,7 @@ function init()
 {
     windows = [];
     isDraggingWindow = false;
+    hasDraggedWindow = false;
     rootElement = $("#root");
     documentElement = $(document);
 
@@ -45,11 +47,13 @@ function init()
             top: currentWindowPos.top + (currentMousePos.y - draggingPrevMousePos.y) });
         
         draggingPrevMousePos = currentMousePos;
+        hasDraggedWindow = true;
     });
 
     rootElement.mouseup(function()
     {
         isDraggingWindow = false;
+        hasDraggedWindow = false;
     });
 
     unfocus();
@@ -114,6 +118,7 @@ function createWindow(height, width, title, content)
         if (currentMousePos.y > windowElement.position().top && currentMousePos.y < windowElement.position().top + windowTitleSeperatorElement.position().top)
         {
             isDraggingWindow = true;
+            hasDraggedWindow = false;
             draggingWindow = windowElement;
             draggingPrevMousePos = { x: event.pageX, y: event.pageY };
         }
@@ -123,6 +128,9 @@ function createWindow(height, width, title, content)
 
     titleCloseElement.mouseup(function(event)
     {
+        if (hasDraggedWindow || event.which != 1 /* Left click only */)
+            return;
+
         windowElement.fadeOut(250, function()
         {
             windowElement.remove();
