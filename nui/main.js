@@ -1,19 +1,23 @@
 var rootElement;
 var documentElement;
-var windowElements = [];
-var isDraggingWindow = false;
+var windows;
+var isDraggingWindow;
 var draggingWindow;
 var draggingPrevMousePos;
 
 $(function()
 {
     init();
-    createWindow("a", "a");
-    createWindow("b", "b");
+    createWindow(-1, -1, "Hello", "I'm a Mac");
+    createWindow(500, 500, "Hi", "I'm a PC");
+    createWindow(200, 600, "Good Day", "My name is Clippy");
+    createWindow(100, 250, "You have spam mail!", "null");
 });
 
 function init()
 {
+    windows = [];
+    isDraggingWindow = false;
     rootElement = $("#root");
     documentElement = $(document);
 
@@ -62,20 +66,46 @@ function focus()
     rootElement.show();
 }
 
-function createWindow(title, content)
+function createWindow(height, width, title, content)
 {
-    var windowElement = $('<div class="window"></div>');
+    if (height < 0)
+        height = 150;
+    if (width < 0)
+        width = 400;
+    if (!title)
+        title = "null";
+    if (!content)
+        content = "null";
+
+    var windowElement = $("<div class='window'></div>");
+    windowElement.height(height);
+    windowElement.width(width);
     rootElement.append(windowElement);
-    var titleElement = $('<div class="windowtitle"></div>');
+    var titleElement = $("<div class='windowtitle'></div>");
     windowElement.append(titleElement);
-    titleElement.append('<p class="windowtitletext">' + title + '</p>');
-    var titleCloseElement = $('<img class="windowtitleclose" src="assets/close.png"></img>');
+    var titleTextElement = $("<p class='windowtitletext'>" + title + "</p>");
+    titleElement.append(titleTextElement);
+    var titleCloseElement = $("<div class='windowtitleclose'></div>");
     titleElement.append(titleCloseElement);
-    var windowTitleSeperatorElement = $('<div class="windowtitleseperator"></div>');
+    var titleCloseImgElement = $("<img class='windowtitlecloseimg' src='assets/close.png'></img>");
+    titleCloseElement.append(titleCloseImgElement);
+    var windowTitleSeperatorElement = $("<div class='windowtitleseperator'></div>");
     windowElement.append(windowTitleSeperatorElement);
-    var windowContentElement = $('<div id="examplecontent" class="windowcontent">');
+    var windowContentElement = $("<div class='windowcontent'>");
     windowElement.append(windowContentElement);
-    windowContentElement.append('<p id="exampletext" class="windowtext">' + content + '</p>');
+    var windowContentTextElement = $("<p class='windowtext'>" + content + "</p>");
+    windowContentElement.append(windowContentTextElement);
+
+    var windowData = {
+        windowElement: windowElement,
+        titleElement: titleElement,
+        titleTextElement: titleTextElement,
+        titleCloseElement: titleCloseElement,
+        titleCloseImgElement: titleCloseImgElement,
+        windowTitleSeperatorElement: windowTitleSeperatorElement,
+        windowContentElement: windowContentElement,
+        windowContentTextElement: windowContentTextElement
+    };
 
     windowElement.mousedown(function(event)
     {
@@ -91,14 +121,25 @@ function createWindow(title, content)
         focusWindow(windowElement);
     });
 
-    windowElements.push(windowElement);
+    titleCloseElement.mouseup(function(event)
+    {
+        windowElement.fadeOut(250, function()
+        {
+            windowElement.remove();
+        });
+        var index = windows.indexOf(windowData);
+        if (index > -1)
+            windows.splice(index, 1);
+    });
+
+    windows.push(windowData);
 }
 
 function resetAllWindowsZ()
 {
-    windowElements.forEach(function(windowElement)
+    windows.forEach(function(window)
     {
-        windowElement.css("z-index", 1);
+        window.windowElement.css("z-index", 1);
     });
 }
 
