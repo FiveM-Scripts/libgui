@@ -1,4 +1,4 @@
-#libgui
+# libgui
 
 **NOTE: Very very early in progress right now, documentation will come alongside code progress!**
 
