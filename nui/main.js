@@ -1,19 +1,18 @@
-var rootElement;
-var documentElement;
-const windows = [];
-var isDraggingWindow;
-var hasDraggedWindow;
-var draggingWindow;
-var draggingPrevMousePos;
+let rootElement;
+let documentElement;
+
+let interfaces = [];
+let visibleWindows = [];
+
+let isDraggingWindow;
+let hasDraggedWindow;
+let draggingWindow;
+let draggingPrevMousePos;
 
 $(function()
 {
     init();
-    unfocus();
-    createWindow(-1, -1, null, [ "<p>Hi Dorifto</p>", "<p>Bye Dorifto</p>" ]);
-    /*createWindow(500, 500, "Hi", "I'm a PC");
-    createWindow(200, 600, "Good Day", "My name is Clippy");
-    createWindow(100, 250, "You have spam mail!", "null");*/
+    hideInterface();
 });
 
 function init()
@@ -25,14 +24,40 @@ function init()
 
     window.addEventListener("message", function(event)
     {
-        if (event.data.show)
-            focus();
+        let data = event.data;
+
+        if (data.showInterface)
+        {
+            showInterface(data.showInterface);
+        }
+        else if (data.createInterface)
+        {
+            interfaces[data.createInterface] = { windows: [] };
+        }
+        else if (data.createWindow)
+        {
+            interfaces[data.interfaceId].windows[data.createWindow] =
+            {
+                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title, data.content)
+            };
+        }
     });
 
     documentElement.keyup(function(event)
     {
         if (event.which == 27) // ESC
-            unfocus();
+            hideInterface();
+    });
+
+    rootElement.mouseup(function(event)
+    {
+        if (isDraggingWindow)
+        {
+            isDraggingWindow = false;
+            hasDraggedWindow = false;
+        }
+        else if (event.target == this) // Close on click anywhere
+            hideInterface();
     });
 
     rootElement.mousemove(function(event)
@@ -49,63 +74,71 @@ function init()
         draggingPrevMousePos = currentMousePos;
         hasDraggedWindow = true;
     });
-
-    rootElement.mouseup(function(event)
-    {
-        if (isDraggingWindow)
-        {
-            isDraggingWindow = false;
-            hasDraggedWindow = false;
-        }
-        else if (event.target == this) // Close on click anywhere
-            unfocus();
-    });
 }
 
-function unfocus()
+function showInterface(interfaceId)
 {
+    hideAllVisibleWindows();
+
+    rootElement.show();
+    interfaces[interfaceId].windows.forEach(function(window)
+    {
+        window.elementData.windowElement.show();
+        visibleWindows.push(window);
+    })
+}
+
+function hideInterface()
+{
+    hideAllVisibleWindows();
+    
     rootElement.hide();
     sendData("hide");
 }
 
-function focus()
+function hideAllVisibleWindows()
 {
-    rootElement.show();
+    visibleWindows.forEach(function(window, index)
+    {
+        window.element.hide();
+        visibleWindows.splice(index, 1);
+    });
 }
 
-function createWindow(height, width, title, content)
+function createWindowElement(interfaceId, windowId, height, width, title, content)
 {
-    if (height < 0)
+    if (typeof height != "number" || height < 0)
         height = 150;
-    if (width < 0)
+    if (typeof width != "number" || width < 0)
         width = 400;
-    if (!title)
+    if (typeof title != "string" || !title)
         title = "";
-    if (!content)
+    if (typeof content != "object" || !content)
         content = [];
 
-    var windowElement = $("<div class='window'></div>");
+    let windowElement = $("<div class='window'></div>");
     windowElement.height(height);
     windowElement.width(width);
     rootElement.append(windowElement);
-    var titleElement = $("<div class='windowtitle'></div>");
+    let titleElement = $("<div class='windowtitle'></div>");
     windowElement.append(titleElement);
-    var titleTextElement = $("<p class='windowtitletext'>" + title + "</p>");
+    let titleTextElement = $("<p class='windowtitletext'>" + title + "</p>");
     titleElement.append(titleTextElement);
-    var titleCloseElement = $("<div class='windowtitleclose'></div>");
+    let titleCloseElement = $("<div class='windowtitleclose'></div>");
     titleElement.append(titleCloseElement);
-    var titleCloseImgElement = $("<img class='windowtitlecloseimg' src='assets/close.png'></img>");
+    let titleCloseImgElement = $("<img class='windowtitlecloseimg' src='assets/close.png'></img>");
     titleCloseElement.append(titleCloseImgElement);
-    var windowTitleSeperatorElement = $("<div class='windowtitleseperator'></div>");
+    let windowTitleSeperatorElement = $("<div class='windowtitleseperator'></div>");
     windowElement.append(windowTitleSeperatorElement);
-    var windowContentElement = $("<div class='windowcontent'>");
+    let windowContentElement = $("<div class='windowcontent'>");
     windowElement.append(windowContentElement);
     content.forEach(function(element)
     {
         windowContentElement.append(element);
     });
 
-    var windowData = {
+    let windowElementData =
+    {
         windowElement: windowElement,
         titleElement: titleElement,
         titleTextElement: titleTextElement,
@@ -113,12 +146,11 @@ function createWindow(height, width, title, content)
         titleCloseImgElement: titleCloseImgElement,
         windowTitleSeperatorElement: windowTitleSeperatorElement,
         windowContentElement: windowContentElement,
-        windowContentItems: content
     };
 
     windowElement.mousedown(function(event)
     {
-        var currentMousePos = getMousePos();
+        let currentMousePos = getMousePos();
         // Check if clicking between window top & title seperator
         if (currentMousePos.y > windowElement.position().top && currentMousePos.y < windowElement.position().top + windowTitleSeperatorElement.position().top)
         {
@@ -140,19 +172,19 @@ function createWindow(height, width, title, content)
         {
             windowElement.remove();
         });
-        var index = windows.indexOf(windowData);
-        if (index > -1)
-            windows.splice(index, 1);
+
+        interfaces[interfaceId].windows[windowId] = null;
     });
 
-    windows.push(windowData);
+    return windowElementData;
 }
 
 function resetAllWindowsZ()
 {
-    windows.forEach(function(window)
+    visibleWindows.forEach(function(window)
     {
-        window.windowElement.css("z-index", 1);
+        console.log("a");
+        window.elementData.windowElement.css("z-index", 1);
     });
 }
 
