@@ -11,3 +11,11 @@ function SendNUIMessage(data)
 {
     SendNuiMessage(JSON.stringify(data));
 }
+
+function Wait (ms)
+{
+    return new Promise(function(res)
+    {
+        setTimeout(res, ms)
+    });
+}

@@ -15,9 +15,9 @@ on("libgui:init", function(interfaceBuilder)
     items.push(window2.addItemText()[0]);
 });
 
-setTick(function()
+setTick(async function()
 {
-    Wait(500);
+    await Wait(500);
     if (items.length == 0)
         return;
     
@@ -27,9 +27,9 @@ setTick(function()
     items[2].setText("z: " + coords[2]);
 });
 
-setTick(function()
+setTick(async function()
 {
-    Wait(1);
+    await Wait(1);
 
     if (IsControlJustReleased(1, 166) && interface) // F5
         interface.show();

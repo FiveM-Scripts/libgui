@@ -1,16 +1,13 @@
 let nuiInitialized = false;
-let initalized = false;
-let interfaces = [];
 
-setTick(function()
+setImmediate(async function()
 {
-    Wait(1000);
-    if (GetIsLoadingScreenActive() || initalized)
-        return;
-    else if (!nuiInitialized)
+    while (GetIsLoadingScreenActive())
+        await Wait(1000);
+    while (!nuiInitialized)
     {
         SendNUIMessage({ ping: true });
-        return;
+        await Wait(2000);
     }
 
     let interfaceBuilder =
@@ -22,7 +19,6 @@ setTick(function()
     };
 
     emit("libgui:init", interfaceBuilder);
-    initalized = true;
     console.log("Initizalized!");
 });
 
