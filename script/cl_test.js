@@ -13,6 +13,8 @@ on("libgui:init", function(interfaceBuilder)
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
+    window2.addItemButton("Ok");
+    window2.addItemButton();
 });
 
 setTick(async function()

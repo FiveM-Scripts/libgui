@@ -62,6 +62,11 @@ function buildWindow(interfaceId, height, width, title)
         addItemText: function(text)
         {
             return buildWindowItem(interfaceId, id, 1, { text: text });
+        },
+
+        addItemButton: function(text, onClick)
+        {
+            return buildWindowItem(interfaceId, id, 2, { text: text, onClick: onClick });
         }
     }
 
@@ -74,8 +79,9 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
     let id = uuidv4();
     let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id };
 
-    if (itemType == 1) // Text item
+    switch (itemType)
     {
+        case 1: // Text item
         data.text = checkItemText(data.text);
         
         let itemText =
@@ -91,6 +97,21 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         sendData.text = data.text;
         SendNUIMessage(sendData);
         return itemText;
+        
+        case 2: // Button item
+        data.text = checkItemText(data.text);
+        if (typeof data.onClick != "function")
+            data.onClick = function() {};
+        
+        let itemButton =
+        {
+
+        }
+
+        sendData.text = data.text;
+        sendData.onClick = data.onClick;
+        SendNUIMessage(sendData);
+        return itemButton;
     }
 }
 

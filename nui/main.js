@@ -52,12 +52,21 @@ function init()
             let windowItems = window.items;
             let windowContentElement = window.elementData.windowContentElement;
 
-            if (data.addWindowItem == 1) // Text
+            switch (data.addWindowItem)
             {
-                let textItemElement = $("<p>" + data.text + "</p>");
-                windowContentElement.append(textItemElement);
-                windowItems[data.itemId] = textItemElement;
-                console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
+            case 1: // Text item
+            let textItemElement = $("<p>" + data.text + "</p>");
+            windowContentElement.append(textItemElement);
+            windowItems[data.itemId] = textItemElement;
+            console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
+            break;
+
+            case 2: // Button item
+            let buttonItemElement = $("<button>" + data.text + "</button>");
+            windowContentElement.append(buttonItemElement);
+            windowItems[data.itemId] = windowContentElement;
+            console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
+            break;
             }
         }
         else if (data.setItemText)
@@ -204,6 +213,7 @@ function createWindowElement(interfaceId, windowId, height, width, title)
         delete interfaces[interfaceId].windows[windowId];
     });
 
+    windowElement.hide();
     return windowData;
 }
 

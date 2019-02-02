@@ -106,3 +106,19 @@ p
     height: 100%;
     width: 90%;
 }
+
+button
+{
+    background: rgb(80, 80, 80);
+    color: rgb(200, 200, 200);
+}
+
+button:hover
+{
+    background: rgb(100, 100, 100);
+}
+
+button:focus
+{
+    outline: 0;
+}
