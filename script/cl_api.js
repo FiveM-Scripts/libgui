@@ -1,4 +1,5 @@
 let nuiInitialized = false;
+let onClicks = {};
 
 setImmediate(async function()
 {
@@ -106,7 +107,9 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         data.text = checkItemText(data.text);
         if (typeof data.onClick != "function")
             data.onClick = function() {};
-        
+
+        onClicks[id] = data.onClick;
+
         let itemButton =
         {
 
@@ -115,7 +118,6 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         sendData.height = data.height;
         sendData.width = data.width;
         sendData.text = data.text;
-        sendData.onClick = data.onClick;
         SendNUIMessage(sendData);
         return itemButton;
     }
@@ -147,4 +149,10 @@ on("__cfx_nui:hide", function()
 {
 	SetNuiFocus(false, false);
     TransitionFromBlurred(200);
+});
+
+RegisterNuiCallbackType("onClick")
+on("__cfx_nui:onClick", function(data)
+{
+	onClicks[data.itemId]();
 });

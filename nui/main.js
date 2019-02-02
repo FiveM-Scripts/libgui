@@ -65,6 +65,11 @@ function init()
             let buttonItemElement = $("<button>" + data.text + "</button>");
             buttonItemElement.height(data.height);
             buttonItemElement.width(data.width);
+            buttonItemElement.click(function()
+            {
+                console.log("Clicked button id " + data.itemId);
+                sendData("onClick", { itemId: data.itemId });
+            });
             windowContentElement.append(buttonItemElement);
             windowItems[data.itemId] = windowContentElement;
             console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
