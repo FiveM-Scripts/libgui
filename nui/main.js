@@ -66,6 +66,15 @@ function init()
             if (window)
                 window.items[data.itemId].text(data.setItemText);
         }
+        else if (data.setWindowClosable != null)
+        {
+            let window = interfaces[data.interfaceId].windows[data.windowId];
+            if (!window)
+                return;
+            
+            let closeElement = window.elementData.titleCloseElement;
+            data.setWindowClosable ? closeElement.show() : closeElement.hide();
+        }
     });
 
     documentElement.keyup(function(event)

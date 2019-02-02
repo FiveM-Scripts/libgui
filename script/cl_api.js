@@ -51,6 +51,11 @@ function buildWindow(interfaceId, height, width, title)
     let id = uuidv4();
     let window =
     {
+        setClosable: function(closable)
+        {
+            SendNUIMessage({ setWindowClosable: closable, interfaceId: interfaceId, windowId: id });
+        },
+
         addItemText: function(text)
         {
             return buildWindowItem(interfaceId, id, 1, { text: text });
