@@ -10,7 +10,12 @@ setImmediate(function()
         }
     };
 
-    Wait(100);
+    do
+    {
+        Wait(1000);
+    }
+    while (!NetworkIsSessionStarted() || GetIsLoadingScreenActive());
+    
     emit("libgui:init", interfaceBuilder);
 });
 
@@ -39,7 +44,7 @@ function buildWindow(interfaceId, height, width, title, content)
     if (typeof height != "number")
         height = 150;
     if (typeof width != "number")
-        height = 400;
+        width = 400;
     if (typeof title != "string")
         title = "";
     if (typeof content != "object")

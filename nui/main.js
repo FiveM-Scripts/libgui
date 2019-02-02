@@ -1,7 +1,7 @@
 let rootElement;
 let documentElement;
 
-let interfaces = [];
+let interfaces = {};
 let visibleWindows = [];
 
 let isDraggingWindow;
@@ -32,7 +32,8 @@ function init()
         }
         else if (data.createInterface)
         {
-            interfaces[data.createInterface] = { windows: [] };
+            interfaces[data.createInterface] = { windows: {} };
+            console.log("Created interface with id " + data.createInterface);
         }
         else if (data.createWindow)
         {
@@ -40,6 +41,7 @@ function init()
             {
                 elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title, data.content)
             };
+            console.log("Created window with id " + data.createWindow + " (dimensions: " + data.height + " " + data.width + ")");
         }
     });
 
@@ -81,7 +83,7 @@ function showInterface(interfaceId)
     hideAllVisibleWindows();
 
     rootElement.show();
-    interfaces[interfaceId].windows.forEach(function(window)
+    Object.values(interfaces[interfaceId].windows).forEach(function(window)
     {
         window.elementData.windowElement.show();
         visibleWindows.push(window);
@@ -137,7 +139,7 @@ function createWindowElement(interfaceId, windowId, height, width, title, conten
         windowContentElement.append(element);
     });
 
-    let windowElementData =
+    let windowData =
     {
         windowElement: windowElement,
         titleElement: titleElement,
@@ -176,14 +178,13 @@ function createWindowElement(interfaceId, windowId, height, width, title, conten
         interfaces[interfaceId].windows[windowId] = null;
     });
 
-    return windowElementData;
+    return windowData;
 }
 
 function resetAllWindowsZ()
 {
     visibleWindows.forEach(function(window)
     {
-        console.log("a");
         window.elementData.windowElement.css("z-index", 1);
     });
 }
