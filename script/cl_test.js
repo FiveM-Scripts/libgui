@@ -27,10 +27,8 @@ setTick(async function()
     items[2].setText("z: " + coords[2]);
 });
 
-setTick(async function()
+setTick(function()
 {
-    await Wait(1);
-
     if (IsControlJustReleased(1, 166) && interface) // F5
         interface.show();
 });
