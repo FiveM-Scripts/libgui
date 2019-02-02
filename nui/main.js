@@ -201,7 +201,7 @@ function createWindowElement(interfaceId, windowId, height, width, title)
             windowElement.remove();
         });
 
-        interfaces[interfaceId].windows[windowId] = null;
+        delete interfaces[interfaceId].windows[windowId];
     });
 
     return windowData;
