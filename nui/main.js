@@ -102,7 +102,7 @@ function hideAllVisibleWindows()
 {
     visibleWindows.forEach(function(window, index)
     {
-        window.element.hide();
+        window.elementData.windowElement.hide();
         visibleWindows.splice(index, 1);
     });
 }
