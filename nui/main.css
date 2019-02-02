@@ -25,7 +25,7 @@ p
 {
     position: absolute;
     border-radius: 7px;
-    background: rgba(80, 80, 80, 0.7);
+    background: rgba(80, 80, 80, 0.6);
     filter: drop-shadow(0 0 0.75em rgba(60, 60, 60, 0.6));
     word-wrap: break-word;
     overflow: hidden;

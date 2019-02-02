@@ -39,9 +39,24 @@ function init()
         {
             interfaces[data.interfaceId].windows[data.createWindow] =
             {
-                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title, data.content)
+                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title),
+                items: {}
             };
             console.log("Created window with id " + data.createWindow + " (dimensions: " + data.height + " " + data.width + ")");
+        }
+        else if (data.addWindowItem)
+        {
+            let window = interfaces[data.interfaceId].windows[data.windowId];
+            let windowItems = window.items;
+            let windowContentElement = window.elementData.windowContentElement;
+
+            if (data.addWindowItem == 1) // Text
+            {
+                let textItemElement = $("<p>" + data.text + "</p>");
+                windowContentElement.append(textItemElement);
+                windowItems[data.itemId] = textItemElement;
+                console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
+            }
         }
     });
 
@@ -107,7 +122,7 @@ function hideAllVisibleWindows()
     });
 }
 
-function createWindowElement(interfaceId, windowId, height, width, title, content)
+function createWindowElement(interfaceId, windowId, height, width, title)
 {
     if (typeof height != "number" || height < 0)
         height = 150;
@@ -115,8 +130,6 @@ function createWindowElement(interfaceId, windowId, height, width, title, conten
         width = 400;
     if (typeof title != "string" || !title)
         title = "";
-    if (typeof content != "object" || !content)
-        content = [];
 
     let windowElement = $("<div class='window'></div>");
     windowElement.height(height);
@@ -134,10 +147,6 @@ function createWindowElement(interfaceId, windowId, height, width, title, conten
     windowElement.append(windowTitleSeperatorElement);
     let windowContentElement = $("<div class='windowcontent'>");
     windowElement.append(windowContentElement);
-    content.forEach(function(element)
-    {
-        windowContentElement.append(element);
-    });
 
     let windowData =
     {

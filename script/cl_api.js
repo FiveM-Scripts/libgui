@@ -15,7 +15,7 @@ setImmediate(function()
         Wait(1000);
     }
     while (!NetworkIsSessionStarted() || GetIsLoadingScreenActive());
-    
+
     emit("libgui:init", interfaceBuilder);
 });
 
@@ -29,9 +29,9 @@ function buildInterface()
             showInterface(id);
         },
 
-        createWindow: function(height, width, title, content)
+        createWindow: function(height, width, title)
         {
-            return buildWindow(id, height, width, title, content);
+            return buildWindow(id, height, width, title);
         }
     };
 
@@ -39,7 +39,7 @@ function buildInterface()
     return interface;
 }
 
-function buildWindow(interfaceId, height, width, title, content)
+function buildWindow(interfaceId, height, width, title)
 {
     if (typeof height != "number")
         height = 150;
@@ -47,16 +47,20 @@ function buildWindow(interfaceId, height, width, title, content)
         width = 400;
     if (typeof title != "string")
         title = "";
-    if (typeof content != "object")
-        content = [];
 
     let id = uuidv4();
     let window =
     {
-        
+        addItemText: function(text)
+        {
+            if (typeof text != "string")
+                text = "<br></br>"; // New line by default
+
+            SendNUIMessage({ addWindowItem: 1, interfaceId: interfaceId, windowId: id, itemId: uuidv4(), text: text });
+        }
     }
 
-    SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title, content: content });
+    SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title });
     return window;
 }
 
