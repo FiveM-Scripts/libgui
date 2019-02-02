@@ -26,10 +26,10 @@ function init()
     {
         let data = event.data;
 
+        if (data.ping)
+            sendData("ping");
         if (data.showInterface)
-        {
             showInterface(data.showInterface);
-        }
         else if (data.createInterface)
         {
             interfaces[data.createInterface] = { windows: {} };

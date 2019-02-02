@@ -1,7 +1,15 @@
+let nuiInitialized = false;
+let initalized = false;
 let interfaces = [];
 
-setImmediate(function()
+setTick(function()
 {
+    Wait(1000);
+    if (GetIsLoadingScreenActive() || initalized)
+        return;
+    else if (!nuiInitialized)
+        SendNUIMessage({ ping: true });
+
     let interfaceBuilder =
     {
         createInterface: function()
@@ -10,13 +18,9 @@ setImmediate(function()
         }
     };
 
-    do
-    {
-        Wait(2000);
-    }
-    while (!NetworkIsSessionStarted() || GetIsLoadingScreenActive());
-
     emit("libgui:init", interfaceBuilder);
+    initalized = true;
+    console.log("Initizalized!");
 });
 
 function buildInterface()
@@ -105,6 +109,12 @@ function showInterface(id)
     SetNuiFocus(true, true);
     TransitionToBlurred(200);
 }
+
+RegisterNuiCallbackType("ping")
+on("__cfx_nui:ping", function()
+{
+	nuiInitialized = true;
+});
 
 RegisterNuiCallbackType("hide")
 on("__cfx_nui:hide", function()
