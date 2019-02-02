@@ -12,7 +12,7 @@ setImmediate(function()
 
     do
     {
-        Wait(1000);
+        Wait(2000);
     }
     while (!NetworkIsSessionStarted() || GetIsLoadingScreenActive());
 
@@ -53,15 +53,45 @@ function buildWindow(interfaceId, height, width, title)
     {
         addItemText: function(text)
         {
-            if (typeof text != "string")
-                text = "<br></br>"; // New line by default
-
-            SendNUIMessage({ addWindowItem: 1, interfaceId: interfaceId, windowId: id, itemId: uuidv4(), text: text });
+            return buildWindowItem(interfaceId, id, 1, { text: text });
         }
     }
 
     SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title });
     return window;
+}
+
+function buildWindowItem(interfaceId, windowId, itemType, data)
+{
+    let id = uuidv4();
+    let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id };
+
+    if (itemType == 1) // Text item
+    {
+        data.text = checkItemText(data.text);
+        
+        let itemText =
+        {
+            setText: function(text)
+            {
+                text = checkItemText(text);
+
+                SendNUIMessage({ setItemText: text, interfaceId: interfaceId, windowId: windowId, itemId: id });
+            }
+        }
+
+        sendData.text = data.text;
+        SendNUIMessage(sendData);
+        return itemText;
+    }
+}
+
+function checkItemText(text)
+{
+    if (typeof text != "string")
+        text = "<br></br>"; // New line by default
+    
+    return text;
 }
 
 function showInterface(id)

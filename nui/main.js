@@ -47,6 +47,8 @@ function init()
         else if (data.addWindowItem)
         {
             let window = interfaces[data.interfaceId].windows[data.windowId];
+            if (!window)
+                return;
             let windowItems = window.items;
             let windowContentElement = window.elementData.windowContentElement;
 
@@ -57,6 +59,12 @@ function init()
                 windowItems[data.itemId] = textItemElement;
                 console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
             }
+        }
+        else if (data.setItemText)
+        {
+            let window = interfaces[data.interfaceId].windows[data.windowId];
+            if (window)
+                window.items[data.itemId].text(data.setItemText);
         }
     });
 
