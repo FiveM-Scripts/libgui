@@ -8,7 +8,10 @@ setTick(function()
     if (GetIsLoadingScreenActive() || initalized)
         return;
     else if (!nuiInitialized)
+    {
         SendNUIMessage({ ping: true });
+        return;
+    }
 
     let interfaceBuilder =
     {

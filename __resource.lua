@@ -12,5 +12,6 @@ ui_page "nui/main.html"
 client_scripts {
     "script/cl_main.js",
     "script/cl_api.js",
-    "script/cl_test.js"
+    "script/cl_test.js",
+    "script/cl_test.lua"
 }
