@@ -44,9 +44,9 @@ function buildInterface()
 
 function buildWindow(interfaceId, height, width, title)
 {
-    if (typeof height != "number")
+    if (typeof height != "number" || height <= 0)
         height = 150;
-    if (typeof width != "number")
+    if (typeof width != "number" || width <= 0)
         width = 400;
     if (typeof title != "string")
         title = "";
@@ -64,9 +64,9 @@ function buildWindow(interfaceId, height, width, title)
             return buildWindowItem(interfaceId, id, 1, { text: text });
         },
 
-        addItemButton: function(text, onClick)
+        addItemButton: function(height, width, text, onClick)
         {
-            return buildWindowItem(interfaceId, id, 2, { text: text, onClick: onClick });
+            return buildWindowItem(interfaceId, id, 2, { height: height, width: width, text: text, onClick: onClick });
         }
     }
 
@@ -99,6 +99,10 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         return itemText;
         
         case 2: // Button item
+        if (typeof data.height != "number" || data.height <= 0)
+            data.height = 25;
+        if (typeof data.width != "number" || data.width <= 0)
+            data.width = 50;
         data.text = checkItemText(data.text);
         if (typeof data.onClick != "function")
             data.onClick = function() {};
@@ -108,6 +112,8 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
 
         }
 
+        sendData.height = data.height;
+        sendData.width = data.width;
         sendData.text = data.text;
         sendData.onClick = data.onClick;
         SendNUIMessage(sendData);
