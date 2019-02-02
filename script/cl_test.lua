@@ -11,6 +11,8 @@ AddEventHandler("libgui:init", function(interfaceBuilder)
     table.insert(items, window2.addItemText())
     table.insert(items, window2.addItemText())
     table.insert(items, window2.addItemText())
+    window2.addItemButton(-1, -1, "Kill", function() SetEntityHealth(PlayerPedId(), 0) end)
+    window2.addItemButton(50, 75)
 end)
 
 Citizen.CreateThread(function()
