@@ -11,12 +11,24 @@ AddEventHandler("libgui:init", function(interfaceBuilder)
     window2.setClosable(false)
     window2.addItemText("Position:")
     window2.addItemSeperator()
+
     table.insert(items, window2.addItemText())
     table.insert(items, window2.addItemText())
     table.insert(items, window2.addItemText())
+
     window2.addItemSeperator(20)
-    window2.addItemButton(-1, -1, "Kill", function() SetEntityHealth(PlayerPedId(), 0) end)
+
+    local container = window2.createContainer()
+
+    container.addItemButton(-1, -1, "Kill", function() SetEntityHealth(PlayerPedId(), 0) end)
+
+    container.addItemSeperator()
+
+    local button1 = container.addItemButton(60, 100, "Disabled")
+    button1.setDisabled(true)
+
     window2.addItemSeperator()
+
     local button = window2.addItemButton(30, 80, "Disabled")
     button.setDisabled(true)
 end)
