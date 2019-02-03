@@ -13,8 +13,9 @@ on("libgui:init", function(interfaceBuilder)
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
-    window2.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); });
-    window2.addItemButton(50, 75);
+    window2.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); })[0];
+    let button = window2.addItemButton(30, 80, "Disabled")[0];
+    button.setDisabled(true);
 });
 
 setTick(async function()

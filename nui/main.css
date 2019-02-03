@@ -111,11 +111,19 @@ p
 
 button
 {
-    background: rgb(80, 80, 80);
+    background: rgba(80, 80, 80, 0.8);
+    border-color: rgba(180, 180, 180, 0.8);
     color: rgb(200, 200, 200);
 }
 
-button:hover
+button:disabled
+{
+    background: rgba(100, 100, 100, 0.8);
+    border-color: rgba(160, 160, 160, 0.8);
+    color: rgb(180, 180, 180);
+}
+
+button:hover:enabled
 {
     background: rgb(100, 100, 100);
 }

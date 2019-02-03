@@ -71,7 +71,7 @@ function init()
                 sendData("onClick", { itemId: data.itemId });
             });
             windowContentElement.append(buttonItemElement);
-            windowItems[data.itemId] = windowContentElement;
+            windowItems[data.itemId] = buttonItemElement;
             console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
             break;
             }
@@ -82,7 +82,7 @@ function init()
             if (window)
                 window.items[data.itemId].text(data.setItemText);
         }
-        else if (data.setWindowClosable != null)
+        else if (data.setWindowClosable != null) // false shoud be allowed too
         {
             let window = interfaces[data.interfaceId].windows[data.windowId];
             if (!window)
@@ -90,6 +90,12 @@ function init()
             
             let closeElement = window.elementData.titleCloseElement;
             data.setWindowClosable ? closeElement.show() : closeElement.hide();
+        }
+        else if (data.setItemDisabled != null)
+        {
+            let window = interfaces[data.interfaceId].windows[data.windowId];
+            if (window)
+                window.items[data.itemId].prop("disabled", data.setItemDisabled);
         }
     });
 

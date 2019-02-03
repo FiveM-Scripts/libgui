@@ -90,7 +90,6 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
             setText: function(text)
             {
                 text = checkItemText(text);
-
                 SendNUIMessage({ setItemText: text, interfaceId: interfaceId, windowId: windowId, itemId: id });
             }
         }
@@ -112,7 +111,10 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
 
         let itemButton =
         {
-
+            setDisabled: function(disabled)
+            {
+                SendNUIMessage({ setItemDisabled: disabled, interfaceId: interfaceId, windowId: windowId, itemId: id });
+            }
         }
 
         sendData.height = data.height;
