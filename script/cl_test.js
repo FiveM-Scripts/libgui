@@ -26,7 +26,7 @@ on("libgui:init", function(interfaceBuilder)
 setTick(async function()
 {
     await Wait(500);
-    if (items.length == 0)
+    if (!interface || !interface.isVisible())
         return;
     
     let coords = GetEntityCoords(PlayerPedId());

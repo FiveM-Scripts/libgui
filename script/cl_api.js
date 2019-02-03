@@ -1,4 +1,5 @@
 let nuiInitialized = false;
+let visibleInterfaceId = 0;
 let onClicks = {};
 
 setImmediate(async function()
@@ -31,6 +32,11 @@ function buildInterface()
         show: function()
         {
             showInterface(id);
+        },
+
+        isVisible: function()
+        {
+            return visibleInterfaceId == id;
         },
 
         createWindow: function(height, width, title)
@@ -160,6 +166,7 @@ function showInterface(id)
     SendNUIMessage({ showInterface: id });
     SetNuiFocus(true, true);
     TransitionToBlurred(200);
+    visibleInterfaceId = id;
 }
 
 RegisterNuiCallbackType("ping")
@@ -173,6 +180,7 @@ on("__cfx_nui:hide", function()
 {
 	SetNuiFocus(false, false);
     TransitionFromBlurred(200);
+    visibleInterfaceId = 0;
 });
 
 RegisterNuiCallbackType("onClick")

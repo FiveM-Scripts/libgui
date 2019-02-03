@@ -24,7 +24,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         Wait(500)
-        if #items > 0 then -- Failsafe
+        if interface and interface.isVisible() then
             local coords = GetEntityCoords(PlayerPedId())
             items[1].setText("x: " .. coords.x)
             items[2].setText("y: " .. coords.y)
