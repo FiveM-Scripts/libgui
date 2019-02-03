@@ -111,21 +111,23 @@ p
 
 button
 {
-    background: rgba(80, 80, 80, 0.8);
-    border-color: rgba(180, 180, 180, 0.8);
+    background: rgba(80, 80, 80, 0.4);
+    border-color: rgba(180, 180, 180, 0.4);
+    border-radius: 5px;
     color: rgb(200, 200, 200);
 }
 
 button:disabled
 {
-    background: rgba(100, 100, 100, 0.8);
-    border-color: rgba(160, 160, 160, 0.8);
+    background: rgba(100, 100, 100, 0.4);
+    border-color: rgba(160, 160, 160, 0.4);
     color: rgb(180, 180, 180);
+    filter: blur(0.5px);
 }
 
 button:hover:enabled
 {
-    background: rgb(100, 100, 100);
+    background: rgba(100, 100, 100, 0.4);
 }
 
 button:focus
