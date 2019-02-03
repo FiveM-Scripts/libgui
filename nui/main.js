@@ -74,6 +74,14 @@ function init()
             windowItems[data.itemId] = buttonItemElement;
             console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
             break;
+
+            case 3: // Seperator item
+            let seperatorItemElement = $("<div></div>");
+            seperatorItemElement.height(data.height);
+            seperatorItemElement.width(data.width);
+            windowContentElement.append(seperatorItemElement);
+            console.log("Added seperator item with id " + data.itemId + " to window with id " + data.windowId);
+            break;
             }
         }
         else if (data.setItemText)

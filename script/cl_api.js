@@ -68,6 +68,11 @@ function buildWindow(interfaceId, height, width, title)
         addItemButton: function(height, width, text, onClick)
         {
             return buildWindowItem(interfaceId, id, 2, { height: height, width: width, text: text, onClick: onClick });
+        },
+
+        addItemSeperator: function(height, width)
+        {
+            return buildWindowItem(interfaceId, id, 3, { height: height, width: width });
         }
     }
 
@@ -111,6 +116,12 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
 
         let itemButton =
         {
+            setText: function(text)
+            {
+                text = checkItemText(text);
+                SendNUIMessage({ setItemText: text, interfaceId: interfaceId, windowId: windowId, itemId: id });
+            },
+
             setDisabled: function(disabled)
             {
                 SendNUIMessage({ setItemDisabled: disabled, interfaceId: interfaceId, windowId: windowId, itemId: id });
@@ -122,13 +133,24 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         sendData.text = data.text;
         SendNUIMessage(sendData);
         return itemButton;
+
+        case 3: // Seperator item
+        if (typeof data.height != "number" || data.height <= 0)
+            data.height = 10;
+        if (typeof data.width != "number" || data.width <= 0)
+            data.width = 10;
+
+        sendData.height = data.height;
+        sendData.width = data.width;
+        SendNUIMessage(sendData);
+        break;
     }
 }
 
 function checkItemText(text)
 {
     if (typeof text != "string")
-        text = "<br></br>"; // New line by default
+        text = "";
     
     return text;
 }

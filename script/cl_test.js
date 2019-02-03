@@ -5,15 +5,20 @@ on("libgui:init", function(interfaceBuilder)
 {
     // Why is everything inside an array all of the sudden?!?!?!
     interface = interfaceBuilder.createInterface()[0];
+
     let window1 = interface.createWindow()[0];
     window1.addItemText("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    
     let window2 = interface.createWindow(400, 400, "Debug")[0];
     window2.setClosable(false);
     window2.addItemText("Position:")[0];
+    window2.addItemSeperator();
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
+    window2.addItemSeperator(20);
     window2.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); })[0];
+    window2.addItemSeperator();
     let button = window2.addItemButton(30, 80, "Disabled")[0];
     button.setDisabled(true);
 });
