@@ -15,6 +15,9 @@ $(function()
     hideInterface();
 });
 
+/**
+ * Sets everything up
+ */
 function init()
 {
     isDraggingWindow = false;
@@ -40,24 +43,33 @@ function init()
             interfaces[data.interfaceId].windows[data.createWindow] =
             {
                 elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title),
-                items: {}
+                items: {},
+                containers: {}
             };
             console.log("Created window with id " + data.createWindow + " (dimensions: " + data.height + " " + data.width + ")");
+        }
+        else if (data.createContainer)
+        {
+            let window = interfaces[data.interfaceId].windows[data.windowId];
+            if (!window)
+                return;
+
+            let containerElement = $("<div class='windowitemcontainer'></div>");
+            window.elementData.windowContentElement.append(containerElement);
+            window.containers[data.createContainer] = containerElement;
+            console.log("Created container with id " + data.createContainer + " inside window with id " + data.windowId);
         }
         else if (data.addWindowItem)
         {
             let window = interfaces[data.interfaceId].windows[data.windowId];
             if (!window)
                 return;
-            let windowItems = window.items;
-            let windowContentElement = window.elementData.windowContentElement;
 
             switch (data.addWindowItem)
             {
             case 1: // Text item
             let textItemElement = $("<p>" + data.text + "</p>");
-            windowContentElement.append(textItemElement);
-            windowItems[data.itemId] = textItemElement;
+            appendItemToWindow(textItemElement, data);
             console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
             break;
 
@@ -70,8 +82,7 @@ function init()
                 console.log("Clicked button id " + data.itemId);
                 sendData("onClick", { itemId: data.itemId });
             });
-            windowContentElement.append(buttonItemElement);
-            windowItems[data.itemId] = buttonItemElement;
+            appendItemToWindow(buttonItemElement, data);
             console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
             break;
 
@@ -79,7 +90,7 @@ function init()
             let seperatorItemElement = $("<div></div>");
             seperatorItemElement.height(data.height);
             seperatorItemElement.width(data.width);
-            windowContentElement.append(seperatorItemElement);
+            appendItemToWindow(seperatorItemElement, data);
             console.log("Added seperator item with id " + data.itemId + " to window with id " + data.windowId);
             break;
             }
@@ -140,6 +151,29 @@ function init()
     });
 }
 
+/**
+ * Takes care of appending a created item element to window correctly (also takes containers in consideration)
+ * @param {Item element to append} itemElement 
+ * @param {Passed data object} data 
+ */
+function appendItemToWindow(itemElement, data)
+{
+    let window = interfaces[data.interfaceId].windows[data.windowId];
+    if (!window)
+        return;
+    
+    if (data.containerId)
+        window.containers[data.containerId].append(itemElement);
+    else
+        window.elementData.windowContentElement.append(itemElement);
+    
+    window.items[data.itemId] = itemElement;
+}
+
+/**
+ * Displays an interface
+ * @param {Id of interface} interfaceId 
+ */
 function showInterface(interfaceId)
 {
     hideAllVisibleWindows();
@@ -152,6 +186,9 @@ function showInterface(interfaceId)
     })
 }
 
+/**
+ * Hides currently active interface
+ */
 function hideInterface()
 {
     hideAllVisibleWindows();
@@ -160,6 +197,9 @@ function hideInterface()
     sendData("hide");
 }
 
+/**
+ * Hides all windows inside active interface
+ */
 function hideAllVisibleWindows()
 {
     visibleWindows.forEach(function(window, index)
@@ -169,6 +209,15 @@ function hideAllVisibleWindows()
     });
 }
 
+/**
+ * Creates a new window element
+ * @param {Id of interface} interfaceId 
+ * @param {Id to use for window} windowId 
+ * @param {Height of window} height 
+ * @param {Width of window} width 
+ * @param {Title of window} title 
+ * @returns Object containing window element data
+ */
 function createWindowElement(interfaceId, windowId, height, width, title)
 {
     if (typeof height != "number" || height < 0)
@@ -231,13 +280,16 @@ function createWindowElement(interfaceId, windowId, height, width, title)
             windowElement.remove();
         });
 
-        delete interfaces[interfaceId].windows[windowId];
+        delete interfaces[interfaceId].windows[containerId];
     });
 
     windowElement.hide();
     return windowData;
 }
 
+/**
+ * Sets z-index of all active windows to 1
+ */
 function resetAllWindowsZ()
 {
     visibleWindows.forEach(function(window)
@@ -246,17 +298,30 @@ function resetAllWindowsZ()
     });
 }
 
+/**
+ * Focuses a specific window by setting its z-index to 2
+ * @param {Window element to focus} windowElement 
+ */
 function focusWindow(windowElement)
 {
     resetAllWindowsZ();
     windowElement.css("z-index", 2);
 }
 
+/**
+ * Sends data back to script
+ * @param {Name of post} name 
+ * @param {Data to send} data 
+ */
 function sendData(name, data = {})
 {
     $.post("http://libgui/" + name, JSON.stringify(data));
 }
 
+/**
+ * Retrieves current position of mouse cursor
+ * @returns Object containing x and y coordinates of mouse cursor
+ */
 function getMousePos()
 {
     return { x: event.pageX, y: event.pageY };

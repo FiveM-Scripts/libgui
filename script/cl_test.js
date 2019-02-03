@@ -12,15 +12,28 @@ on("libgui:init", function(interfaceBuilder)
     let window2 = interface.createWindow(400, 400, "Debug")[0];
     window2.setClosable(false);
     window2.addItemText("Position:")[0];
+
     window2.addItemSeperator();
+
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
     items.push(window2.addItemText()[0]);
+
     window2.addItemSeperator(20);
-    window2.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); })[0];
+
+    let container = window2.createContainer()[0];
+
+    container.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); })[0];
+
+    container.addItemSeperator();
+
+    let button1 = container.addItemButton(60, 100, "Disabled")[0];
+    button1.setDisabled(true);
+
     window2.addItemSeperator();
-    let button = window2.addItemButton(30, 80, "Disabled")[0];
-    button.setDisabled(true);
+
+    let button2 = window2.addItemButton(30, 80, "Disabled 2")[0];
+    button2.setDisabled(true);
 });
 
 setTick(async function()

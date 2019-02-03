@@ -44,7 +44,7 @@ p
     filter: blur(30px);
 }
 
-.window div
+.windowtitle, .windowtitleseperator, .windowcontent
 {
     margin-left: 10px;
 }
@@ -133,4 +133,12 @@ button:hover:enabled
 button:focus
 {
     outline: 0;
+}
+
+.windowitemcontainer
+{
+    display: flex;
+    height: auto;
+    width: auto;
+    overflow: hidden;
 }

@@ -24,6 +24,10 @@ setImmediate(async function()
     console.log("Initizalized!");
 });
 
+/**
+ * Creates a new interface to create windows in
+ * @returns New interface
+ */
 function buildInterface()
 {
     let id = uuidv4();
@@ -41,7 +45,7 @@ function buildInterface()
 
         createWindow: function(height, width, title)
         {
-            return buildWindow(id, height, width, title);
+            return buildContainer(id, -1, height, width, title);
         }
     };
 
@@ -49,47 +53,78 @@ function buildInterface()
     return interface;
 }
 
-function buildWindow(interfaceId, height, width, title)
+/**
+ * Creates either a new window or a container inside a window
+ * @param {Id of interface} interfaceId
+ * @param {Id of window to create container in, set to -1 to create window instead} windowId
+ * @param {Specified height} height 
+ * @param {Specified width} width 
+ * @param {Title of new window, ignore if creating container} title
+ * @returns New Window or Container object
+ */
+function buildContainer(interfaceId, windowId, height, width, title)
 {
-    if (typeof height != "number" || height <= 0)
+    let isWindow = typeof windowId == "number";
+    if (typeof height != "number" || height < 0)
         height = 150;
-    if (typeof width != "number" || width <= 0)
+    if (typeof width != "number" || width < 0)
         width = 400;
     if (typeof title != "string")
         title = "";
 
     let id = uuidv4();
-    let window =
+    let container =
     {
+        // Only for windows
         setClosable: function(closable)
         {
-            SendNUIMessage({ setWindowClosable: closable, interfaceId: interfaceId, windowId: id });
+            if (isWindow)
+                SendNUIMessage({ setWindowClosable: closable, interfaceId: interfaceId, windowId: id });
+        },
+
+        // Also only for windows
+        createContainer: function()
+        {
+            if (isWindow)
+                return buildContainer(interfaceId, id, 0, 0);
         },
 
         addItemText: function(text)
         {
-            return buildWindowItem(interfaceId, id, 1, { text: text });
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 1, { text: text }, !isWindow ? id : null);
         },
 
         addItemButton: function(height, width, text, onClick)
         {
-            return buildWindowItem(interfaceId, id, 2, { height: height, width: width, text: text, onClick: onClick });
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 2, { height: height, width: width, text: text, onClick: onClick }, !isWindow ? id : null);
         },
 
         addItemSeperator: function(height, width)
         {
-            return buildWindowItem(interfaceId, id, 3, { height: height, width: width });
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 3, { height: height, width: width }, !isWindow ? id : null);
         }
     }
 
-    SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title });
-    return window;
+    if (isWindow)
+        SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title });
+    else
+        SendNUIMessage({ createContainer: id, interfaceId: interfaceId, windowId: windowId, height: height, width: width, title: title });
+    return container;
 }
 
-function buildWindowItem(interfaceId, windowId, itemType, data)
+/**
+ * Creates a new item inside window
+ * @param {Id of interface} interfaceId 
+ * @param {Id of window} windowId 
+ * @param {Type of item} itemType 
+ * @param {Data object according to specified item type} data 
+ * @param {(Optional) Specify container id to create item in, leave empty to ignore} containerId 
+ * @returns Newly created item (depending on item type)
+ */
+function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
 {
     let id = uuidv4();
-    let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id };
+    let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id, containerId: containerId };
 
     switch (itemType)
     {
@@ -141,9 +176,9 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
         return itemButton;
 
         case 3: // Seperator item
-        if (typeof data.height != "number" || data.height <= 0)
+        if (typeof data.height != "number" || data.height < 0)
             data.height = 10;
-        if (typeof data.width != "number" || data.width <= 0)
+        if (typeof data.width != "number" || data.width < 0)
             data.width = 10;
 
         sendData.height = data.height;
@@ -153,6 +188,11 @@ function buildWindowItem(interfaceId, windowId, itemType, data)
     }
 }
 
+/**
+ * Checks if string is appropriate for item and corrects it if needed
+ * @param {String to check} text
+ * @returns Safe to use string
+ */
 function checkItemText(text)
 {
     if (typeof text != "string")
@@ -161,6 +201,10 @@ function checkItemText(text)
     return text;
 }
 
+/**
+ * Displays specified interface
+ * @param {Id of interface} id 
+ */
 function showInterface(id)
 {
     SendNUIMessage({ showInterface: id });
@@ -169,12 +213,18 @@ function showInterface(id)
     visibleInterfaceId = id;
 }
 
+/**
+ * Used initially to ensure NUI side was initialized properly
+ */
 RegisterNuiCallbackType("ping")
 on("__cfx_nui:ping", function()
 {
 	nuiInitialized = true;
 });
 
+/**
+ * Listen to hide callback to stop focus
+ */
 RegisterNuiCallbackType("hide")
 on("__cfx_nui:hide", function()
 {
@@ -183,6 +233,9 @@ on("__cfx_nui:hide", function()
     visibleInterfaceId = 0;
 });
 
+/**
+ * Called on click of an window item
+ */
 RegisterNuiCallbackType("onClick")
 on("__cfx_nui:onClick", function(data)
 {
