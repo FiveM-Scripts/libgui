@@ -1,13 +1,16 @@
 let nuiInitialized = false;
 let visibleInterfaceId = 0;
-let onClicks = {};
+let listeners = {};
 
 setImmediate(async function()
 {
+    console.log("Initializing...");
+
     while (GetIsLoadingScreenActive())
         await Wait(1000);
     while (!nuiInitialized)
     {
+        console.log("Waiting for ping...");
         SendNUIMessage({ ping: true });
         await Wait(2000);
     }
@@ -21,7 +24,6 @@ setImmediate(async function()
     };
 
     emit("libgui:init", interfaceBuilder);
-    console.log("Initizalized!");
 });
 
 /**
@@ -64,7 +66,7 @@ function buildInterface()
  */
 function buildContainer(interfaceId, windowId, height, width, title)
 {
-    let isWindow = typeof windowId == "number";
+    let isWindow = windowId == -1;
     if (typeof height != "number" || height < 0)
         height = 150;
     if (typeof width != "number" || width < 0)
@@ -73,21 +75,36 @@ function buildContainer(interfaceId, windowId, height, width, title)
         title = "";
 
     let id = uuidv4();
+    listeners[id] = {};
     let container =
     {
-        // Only for windows
+        /* Windows only */
+
         setClosable: function(closable)
         {
             if (isWindow)
                 SendNUIMessage({ setWindowClosable: closable, interfaceId: interfaceId, windowId: id });
         },
 
-        // Also only for windows
+        setOnClose: function(onClose)
+        {
+            if (isWindow && typeof onClose == "function")
+                listeners[id].onClose = onClose;
+        },
+
+        isClosed: function()
+        {
+            if (isWindow)
+                return listeners[id] == null;
+        },
+
         createContainer: function()
         {
             if (isWindow)
                 return buildContainer(interfaceId, id, 0, 0);
         },
+
+        /* Windows and Containers */
 
         addItemText: function(text)
         {
@@ -125,6 +142,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
 {
     let id = uuidv4();
     let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id, containerId: containerId };
+    listeners[id] = {};
 
     switch (itemType)
     {
@@ -151,9 +169,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
             data.width = 50;
         data.text = checkItemText(data.text);
         if (typeof data.onClick != "function")
-            data.onClick = function() {};
-
-        onClicks[id] = data.onClick;
+            listeners[id].onClick = data.onClick;
 
         let itemButton =
         {
@@ -239,5 +255,17 @@ on("__cfx_nui:hide", function()
 RegisterNuiCallbackType("onClick")
 on("__cfx_nui:onClick", function(data)
 {
-	onClicks[data.itemId]();
+    if (listeners[data.itemId].onClick)
+	    listeners[data.itemId].onClick();
+});
+
+/**
+ * Called on window close
+ */
+RegisterNuiCallbackType("windowClosed")
+on("__cfx_nui:windowClosed", function(data)
+{
+    if (listeners[data.windowId].onClose)
+        listeners[data.windowId].onClose();
+    delete listeners[data.windowId];
 });

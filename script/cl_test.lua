@@ -6,7 +6,10 @@ AddEventHandler("libgui:init", function(interfaceBuilder)
 
     local window1 = interface.createWindow()
     window1.addItemText("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.")
-    
+    window1.setOnClose(function()
+        print("Gone as always")
+    end)
+
     local window2 = interface.createWindow(400, 400, "Debug")
     window2.setClosable(false)
     window2.addItemText("Position:")
@@ -49,7 +52,7 @@ Citizen.CreateThread(function()
     while true do
         Wait(1)
 
-        if IsControlJustReleased(1, 167) and interface then -- F6
+        if IsControlJustReleased(1, 167) and interface and not interface.isVisible() then -- F6
             interface.show()
         end
     end

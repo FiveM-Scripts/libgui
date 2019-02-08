@@ -280,7 +280,8 @@ function createWindowElement(interfaceId, windowId, height, width, title)
             windowElement.remove();
         });
 
-        delete interfaces[interfaceId].windows[containerId];
+        sendData("windowClosed", { windowId: windowId });
+        delete interfaces[interfaceId].windows[windowId];
     });
 
     windowElement.hide();

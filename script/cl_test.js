@@ -8,7 +8,11 @@ on("libgui:init", function(interfaceBuilder)
 
     let window1 = interface.createWindow()[0];
     window1.addItemText("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
-    
+    window1.setOnClose(function()
+    {
+        console.log("Gone as always");
+    });
+
     let window2 = interface.createWindow(400, 400, "Debug")[0];
     window2.setClosable(false);
     window2.addItemText("Position:")[0];
@@ -50,6 +54,9 @@ setTick(async function()
 
 setTick(function()
 {
-    if (IsControlJustReleased(1, 166) && interface) // F5
+    if (!interface || interface.isVisible()[0])
+        return;
+
+    if (IsControlJustReleased(1, 166)) // F5
         interface.show();
 });
