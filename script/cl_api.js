@@ -62,9 +62,10 @@ function buildInterface()
  * @param {Specified height} height 
  * @param {Specified width} width 
  * @param {Title of new window, ignore if creating container} title
+ * @param {(Window only) Id of parent window for sub windows to disable input until child window is closed} parentId
  * @returns New Window or Container object
  */
-function buildContainer(interfaceId, windowId, height, width, title)
+function buildContainer(interfaceId, windowId, height, width, title, parentId)
 {
     let isWindow = windowId == -1;
     if (typeof height != "number" || height < 0)
@@ -104,6 +105,12 @@ function buildContainer(interfaceId, windowId, height, width, title)
                 return buildContainer(interfaceId, id, 0, 0);
         },
 
+        createSubWindow: function(height, width, title)
+        {
+            if (isWindow)
+                return buildContainer(interfaceId, -1, height, width, title, id);
+        },
+
         /* Windows and Containers */
 
         addItemText: function(text)
@@ -123,7 +130,7 @@ function buildContainer(interfaceId, windowId, height, width, title)
     }
 
     if (isWindow)
-        SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title });
+        SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title, parentId: parentId ? parentId : false });
     else
         SendNUIMessage({ createContainer: id, interfaceId: interfaceId, windowId: windowId, height: height, width: width, title: title });
     return container;
@@ -168,7 +175,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         if (typeof data.width != "number" || data.width <= 0)
             data.width = 50;
         data.text = checkItemText(data.text);
-        if (typeof data.onClick != "function")
+        if (typeof data.onClick == "function")
             listeners[id].onClick = data.onClick;
 
         let itemButton =

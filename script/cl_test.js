@@ -27,12 +27,16 @@ on("libgui:init", function(interfaceBuilder)
 
     let container = window2.createContainer()[0];
 
-    container.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0); })[0];
+    container.addItemButton(-1, -1, "Kill", function() { SetEntityHealth(PlayerPedId(), 0) } )[0];
 
     container.addItemSeperator();
 
     let button1 = container.addItemButton(60, 100, "Disabled")[0];
     button1.setDisabled(true);
+
+    container.addItemSeperator();
+
+    container.addItemButton(50, 80, "Create sub-window", function() { window2.createSubWindow(-1, -1, "HYPE") } )[0];
 
     window2.addItemSeperator();
 

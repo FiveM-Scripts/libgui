@@ -30,6 +30,10 @@ AddEventHandler("libgui:init", function(interfaceBuilder)
     local button1 = container.addItemButton(60, 100, "Disabled")
     button1.setDisabled(true)
 
+    container.addItemSeperator()
+
+    container.addItemButton(50, 80, "Create sub-window", function() window2.createSubWindow(-1, -1, "HYPE") end)
+
     window2.addItemSeperator()
 
     local button = window2.addItemButton(30, 80, "Disabled")

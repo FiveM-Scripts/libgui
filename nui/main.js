@@ -2,6 +2,7 @@ let rootElement;
 let documentElement;
 
 let interfaces = {};
+let visibleInterfaceId = 0;
 let visibleWindows = [];
 
 let isDraggingWindow;
@@ -42,7 +43,7 @@ function init()
         {
             interfaces[data.interfaceId].windows[data.createWindow] =
             {
-                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title),
+                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title, data.parentId),
                 items: {},
                 containers: {}
             };
@@ -179,6 +180,7 @@ function showInterface(interfaceId)
     hideAllVisibleWindows();
 
     rootElement.show();
+    visibleInterfaceId = interfaceId;
     Object.values(interfaces[interfaceId].windows).forEach(function(window)
     {
         window.elementData.windowElement.show();
@@ -202,6 +204,7 @@ function hideInterface()
  */
 function hideAllVisibleWindows()
 {
+    visibleInterfaceId = 0;
     visibleWindows.forEach(function(window, index)
     {
         window.elementData.windowElement.hide();
@@ -216,9 +219,10 @@ function hideAllVisibleWindows()
  * @param {Height of window} height 
  * @param {Width of window} width 
  * @param {Title of window} title 
+ * @param {Id of parent window for sub windows} parentId 
  * @returns Object containing window element data
  */
-function createWindowElement(interfaceId, windowId, height, width, title)
+function createWindowElement(interfaceId, windowId, height, width, title, parentId)
 {
     if (typeof height != "number" || height < 0)
         height = 150;
@@ -280,11 +284,32 @@ function createWindowElement(interfaceId, windowId, height, width, title)
             windowElement.remove();
         });
 
+        if (parentId)
+            interfaces[interfaceId].windows[parentId].elementData.windowElement.attr("disabled", false);
+
         sendData("windowClosed", { windowId: windowId });
         delete interfaces[interfaceId].windows[windowId];
     });
 
-    windowElement.hide();
+    if (parentId)
+    {
+        let parentWindowElement = interfaces[interfaceId].windows[parentId].elementData.windowElement;
+        parentWindowElement.attr("disabled", true);
+        
+        let parentWindowPos = parentWindowElement.position();
+        let parentWindowHeight = parentWindowElement.height();
+        let parentWindowWidth = parentWindowElement.width();
+        let windowHeight = windowElement.height();
+        let windowWidth = windowElement.width();
+        windowElement.css("top", (parentWindowPos.top + parentWindowHeight / 2) - windowHeight / 2);
+        windowElement.css("left", (parentWindowPos.left + parentWindowWidth / 2) - windowWidth / 2);
+    }
+
+    if (interfaceId == visibleInterfaceId)
+        focusWindow(windowElement);
+    else
+        windowElement.hide();
+    
     return windowData;
 }
 

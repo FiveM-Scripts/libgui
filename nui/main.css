@@ -31,6 +31,12 @@ p
     overflow: hidden;
 }
 
+.window[disabled] /* Divs usually don't have a disabled state so use an attribute selector */
+{
+    filter: blur(2px);
+    pointer-events: none; /* Disable input */
+}
+
 .window::after
 {
     position: absolute;
