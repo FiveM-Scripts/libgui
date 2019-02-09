@@ -8,4 +8,6 @@ A GUI library for FiveM, featuring:
 
 - An easy to understand API, making creating GUIs a breeze!
 
+![Screenshot](https://imgur.com/ieXgXAS)
+
 See the [documentation](https://github.com/FiveM-Scripts/libgui/wiki/Documentation).
