@@ -1,16 +1,16 @@
 let nuiInitialized = false;
 let visibleInterfaceId = 0;
-let listeners = {};
+let windows = {};
 
 setImmediate(async function()
 {
-    console.log("Initializing...");
+    console.log("[libgui] Initializing...");
 
     while (GetIsLoadingScreenActive())
         await Wait(1000);
     while (!nuiInitialized)
     {
-        console.log("Waiting for ping...");
+        console.log("[libgui] Waiting for NUI ping...");
         SendNUIMessage({ ping: true });
         await Wait(2000);
     }
@@ -76,7 +76,10 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
         title = "";
 
     let id = uuidv4();
-    listeners[id] = {};
+
+    if (isWindow)
+        windows[id] = { items: {} };
+
     let container =
     {
         /* Windows only */
@@ -90,13 +93,13 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
         setOnClose: function(onClose)
         {
             if (isWindow && typeof onClose == "function")
-                listeners[id].onClose = onClose;
+                windows[id].onClose = onClose;
         },
 
         isClosed: function()
         {
             if (isWindow)
-                return listeners[id] == null;
+                return windows[id] == null;
         },
 
         createContainer: function()
@@ -126,6 +129,11 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
         addItemSeperator: function(height, width)
         {
             return buildWindowItem(interfaceId, isWindow ? id : windowId, 3, { height: height, width: width }, !isWindow ? id : null);
+        },
+
+        addItemTextField: function(height, width, type)
+        {
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 4, { height: height, width: width, type: type }, !isWindow ? id : null);
         }
     }
 
@@ -133,6 +141,7 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
         SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title, parentId: parentId ? parentId : false });
     else
         SendNUIMessage({ createContainer: id, interfaceId: interfaceId, windowId: windowId, height: height, width: width, title: title });
+    
     return container;
 }
 
@@ -149,11 +158,11 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
 {
     let id = uuidv4();
     let sendData = { addWindowItem: itemType, interfaceId: interfaceId, windowId: windowId, itemId: id, containerId: containerId };
-    listeners[id] = {};
+    windows[windowId].items[id] = {};
 
     switch (itemType)
     {
-        case 1: // Text item
+        case 1: // Text Item
         data.text = checkItemText(data.text);
         
         let itemText =
@@ -169,14 +178,14 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         SendNUIMessage(sendData);
         return itemText;
         
-        case 2: // Button item
+        case 2: // Button Item
         if (typeof data.height != "number" || data.height <= 0)
-            data.height = 25;
+            data.height = 30;
         if (typeof data.width != "number" || data.width <= 0)
-            data.width = 50;
+            data.width = 75;
         data.text = checkItemText(data.text);
         if (typeof data.onClick == "function")
-            listeners[id].onClick = data.onClick;
+            windows[windowId].items[id].onClick = data.onClick;
 
         let itemButton =
         {
@@ -198,7 +207,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         SendNUIMessage(sendData);
         return itemButton;
 
-        case 3: // Seperator item
+        case 3: // Seperator Item
         if (typeof data.height != "number" || data.height < 0)
             data.height = 10;
         if (typeof data.width != "number" || data.width < 0)
@@ -208,6 +217,30 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         sendData.width = data.width;
         SendNUIMessage(sendData);
         break;
+
+        case 4: // Text Field Item
+        /* Types:
+            0: Normal
+            1: Decimals only
+            2: Password (hide actual text)
+        */
+        if (typeof data.height != "number" || data.height <= 0)
+            data.height = 30;
+        if (typeof data.width != "number" || data.width <= 0)
+            data.width = 150;
+        if (typeof data.type != "number" || data.type <= 0)
+            data.type = 0;
+
+        let itemTextEntry =
+        {
+
+        }
+
+        sendData.height = data.height;
+        sendData.width = data.width;
+        sendData.type = data.type;
+        SendNUIMessage(sendData);
+        return itemTextEntry;
     }
 }
 
@@ -262,8 +295,8 @@ on("__cfx_nui:hide", function()
 RegisterNuiCallbackType("onClick")
 on("__cfx_nui:onClick", function(data)
 {
-    if (listeners[data.itemId].onClick)
-	    listeners[data.itemId].onClick();
+    if (typeof windows[data.windowId].items[data.itemId].onClick == "function")
+        windows[data.windowId].items[data.itemId].onClick();
 });
 
 /**
@@ -272,7 +305,7 @@ on("__cfx_nui:onClick", function(data)
 RegisterNuiCallbackType("windowClosed")
 on("__cfx_nui:windowClosed", function(data)
 {
-    if (listeners[data.windowId].onClose)
-        listeners[data.windowId].onClose();
-    delete listeners[data.windowId];
+    if (typeof windows[data.windowId].onClose == "function")
+        windows[data.windowId].onClose();
+    delete windows[data.windowId];
 });

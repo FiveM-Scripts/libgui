@@ -81,7 +81,7 @@ function init()
             buttonItemElement.click(function()
             {
                 console.log("Clicked button id " + data.itemId);
-                sendData("onClick", { itemId: data.itemId });
+                sendData("onClick", { windowId: data.windowId, itemId: data.itemId });
             });
             appendItemToWindow(buttonItemElement, data);
             console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
