@@ -269,7 +269,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
 
 /**
  * Checks if string is appropriate for item and corrects it if needed
- * @param {String to check} text
+ * @param {*} text
  * @returns Safe to use string
  */
 function checkItemText(text)
@@ -334,7 +334,7 @@ on("__cfx_nui:windowClosed", function(data)
 });
 
 /**
- * Called on textfield item event
+ * Called on text field item event
  */
 RegisterNuiCallbackType("textFieldEvent")
 on("__cfx_nui:textFieldEvent", function(data)

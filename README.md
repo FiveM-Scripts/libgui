@@ -1,15 +1,11 @@
 # libgui
 
-**NOTE: Very very early in progress right now, documentation will come alongside code progress!**
+A GUI library for FiveM, featuring:
 
-A GUI library for FiveM, featuring (or rather is going to feature):
+- Freely creatable and moveable windows
 
-- Actual windows, freely moveable and (in the future very likely) resizable
+- Text, Button and Text Field Items with more being added later on
 
-- Many unique window elements, ranging from simple texts to lists and sliders
+- An easy to understand API, making creating GUIs a breeze!
 
-- A very easy API, making creating GUIs a breeze!
-
-- Customizability
-
-- And probably more...
+See the [documentation](https://github.com/FiveM-Scripts/libgui/wiki/Documentation).
