@@ -66,7 +66,12 @@ function init()
         {
             let window = interfaces[data.interfaceId].windows[data.windowId];
             if (window)
-                window.items[data.itemId].text(data.setItemText);
+            {
+                if (data.isTextField)
+                    window.items[data.itemId].val(data.setItemText);
+                else
+                    window.items[data.itemId].text(data.setItemText);
+            }
         }
         else if (data.setWindowClosable != null) // false shoud be allowed too
         {
@@ -255,11 +260,13 @@ function createWindowElement(interfaceId, windowId, width, height, title, parent
 
         sendData("windowClosed", { windowId: windowId });
         delete interfaces[interfaceId].windows[windowId];
+        console.log("Closed window with id " + windowId);
     });
 
     let windowSize = { width: windowElement.width(), height: windowElement.height() };
 
     // Automatic window placement
+    let finalPos = {};
     if (parentId)
     {
         let parentWindowElement = interfaces[interfaceId].windows[parentId].elementData.windowElement;
@@ -267,17 +274,25 @@ function createWindowElement(interfaceId, windowId, width, height, title, parent
         
         let parentWindowPos = parentWindowElement.position();
         let parentWindowSize = { width: parentWindowElement.width(), height: parentWindowElement.height() };
-        windowElement.css("left", (parentWindowPos.left + parentWindowSize.width / 2) - windowSize.width / 2);
-        windowElement.css("top", (parentWindowPos.top + parentWindowSize.height / 2) - windowSize.height / 2);
+        finalPos =
+        {
+            x: (parentWindowPos.left + parentWindowSize.width / 2) - windowSize.width / 2,
+            y: (parentWindowPos.top + parentWindowSize.height / 2) - windowSize.height / 2
+        };
     }
     else
     {
         let rootElementSize = { width: rootElement.width(), height: rootElement.height() };
         let rootCenterPos = { x: rootElementSize.width / 2 - windowSize.width / 2, y: rootElementSize.height / 2 - windowSize.height / 2 };
         let maxOffset = { x: rootElementSize.width / 5, y: rootElementSize.height / 5 };
-        windowElement.css("left", rootCenterPos.x + randInt(-maxOffset.x, maxOffset.x));
-        windowElement.css("top", rootCenterPos.y + randInt(-maxOffset.y, maxOffset.y));
+        finalPos =
+        {
+            x: rootCenterPos.x + randInt(-maxOffset.x, maxOffset.x),
+            y: rootCenterPos.y + randInt(-maxOffset.y, maxOffset.y)
+        };
     }
+    windowElement.css("left", finalPos.x);
+    windowElement.css("top", finalPos.y);
 
     if (interfaceId == visibleInterfaceId)
         focusWindow(windowElement);
@@ -299,13 +314,15 @@ function createWindowItem(data)
 
     switch (data.addWindowItem)
     {
-    case 1: // Text item
+    case 1: // Text Item
     let textItemElement = $("<p>" + data.text + "</p>");
+    if (data.textSize)
+        textItemElement.css("font-size", data.textSize + "px");
     appendItemToWindow(textItemElement, data);
     console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
     break;
 
-    case 2: // Button item
+    case 2: // Button Item
     let buttonItemElement = $("<button>" + data.text + "</button>");
     buttonItemElement.width(data.width);
     buttonItemElement.height(data.height);
@@ -318,13 +335,34 @@ function createWindowItem(data)
     console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
     break;
 
-    case 3: // Seperator item
+    case 3: // Seperator Item
     let seperatorItemElement = $("<div></div>");
     seperatorItemElement.width(data.width);
     seperatorItemElement.height(data.height);
     appendItemToWindow(seperatorItemElement, data);
     console.log("Added seperator item with id " + data.itemId + " to window with id " + data.windowId);
     break;
+
+    case 4: // Text Field Item
+    let inputItemElementBuilder = "<input spellcheck='false' ";
+    if (data.type == 1)
+        inputItemElementBuilder += "type='number'";
+    else if (data.type == 2)
+        inputItemElementBuilder += "type='password'";
+    let inputItemElement = $(inputItemElementBuilder + "></input>");
+    inputItemElement.width(data.width);
+    inputItemElement.height(data.height);
+    inputItemElement.change(function()
+    {
+        sendData("textFieldEvent", { event: 1, windowId: data.windowId, itemId: data.itemId, text: inputItemElement.val().trim() });
+    });
+    inputItemElement.keypress(function(event)
+    {
+        if (event.which == 13) // Enter
+            sendData("textFieldEvent", { event: 2, windowId: data.windowId, itemId: data.itemId });
+    });
+    appendItemToWindow(inputItemElement, data);
+    console.log("Added text field item with id " + data.itemId + " to window with id " + data.windowId);
     }
 }
 

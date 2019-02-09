@@ -116,9 +116,9 @@ function buildContainer(interfaceId, windowId, width, height, title, parentId)
 
         /* Windows and Containers */
 
-        addItemText: function(text)
+        addItemText: function(text, textSize)
         {
-            return buildWindowItem(interfaceId, isWindow ? id : windowId, 1, { text: text }, !isWindow ? id : null);
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 1, { text: text, textSize: textSize }, !isWindow ? id : null);
         },
 
         addItemButton: function(width, height, text, onClick)
@@ -175,12 +175,14 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         }
 
         sendData.text = data.text;
+        if (typeof data.textSize == "number")
+            sendData.textSize = data.textSize;
         SendNUIMessage(sendData);
         return itemText;
         
         case 2: // Button Item
         if (typeof data.width != "number" || data.width <= 0)
-            data.width = 75;
+            data.width = 80;
         if (typeof data.height != "number" || data.height <= 0)
             data.height = 30;
         data.text = checkItemText(data.text);
@@ -230,17 +232,38 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
             data.height = 30;
         if (typeof data.type != "number" || data.type <= 0)
             data.type = 0;
+        windows[windowId].items[id].text = "";      
 
-        let itemTextEntry =
+        let itemTextField =
         {
+            getText: function()
+            {
+                return windows[windowId].items[id].text;
+            },
 
+            setText: function(text)
+            {
+                text = checkItemText(text);
+                SendNUIMessage({ setItemText: text, interfaceId: interfaceId, windowId: windowId, itemId: id, isTextField: true });
+            },
+
+            setDisabled: function(disabled)
+            {
+                SendNUIMessage({ setItemDisabled: disabled, interfaceId: interfaceId, windowId: windowId, itemId: id });
+            },
+
+            setOnEnter: function(onEnter)
+            {
+                if (typeof onEnter == "function")
+                    windows[windowId].items[id].onEnter = onEnter;
+            }
         }
 
         sendData.width = data.width;
         sendData.height = data.height;
         sendData.type = data.type;
         SendNUIMessage(sendData);
-        return itemTextEntry;
+        return itemTextField;
     }
 }
 
@@ -251,7 +274,7 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
  */
 function checkItemText(text)
 {
-    if (typeof text != "string")
+    if (typeof text != "string" && typeof text != "number")
         text = "";
     
     return text;
@@ -295,7 +318,7 @@ on("__cfx_nui:hide", function()
 RegisterNuiCallbackType("onClick")
 on("__cfx_nui:onClick", function(data)
 {
-    if (typeof windows[data.windowId].items[data.itemId].onClick == "function")
+    if (windows[data.windowId].items[data.itemId].onClick)
         windows[data.windowId].items[data.itemId].onClick();
 });
 
@@ -305,7 +328,19 @@ on("__cfx_nui:onClick", function(data)
 RegisterNuiCallbackType("windowClosed")
 on("__cfx_nui:windowClosed", function(data)
 {
-    if (typeof windows[data.windowId].onClose == "function")
+    if (windows[data.windowId].onClose)
         windows[data.windowId].onClose();
     delete windows[data.windowId];
+});
+
+/**
+ * Called on textfield item event
+ */
+RegisterNuiCallbackType("textFieldEvent")
+on("__cfx_nui:textFieldEvent", function(data)
+{
+    if (data.event == 1) // Input change
+        windows[data.windowId].items[data.itemId].text = data.text;
+    else if (data.event == 2 && windows[data.windowId].items[data.itemId].onEnter) // onEnter
+        windows[data.windowId].items[data.itemId].onEnter();
 });

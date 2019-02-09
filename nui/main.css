@@ -147,5 +147,28 @@ button:focus
     display: flex;
     height: auto;
     width: auto;
+    align-items: center;
     overflow: hidden;
+}
+
+input
+{
+    background: rgba(80, 80, 80, 0.5);
+    border-color: rgba(180, 180, 180, 0.5);
+    border-radius: 5px;
+    color: rgb(200, 200, 200);
+}
+
+input:focus
+{
+    outline: 0;
+    box-shadow: 0 0 5px rgba(200, 200, 200, 0.7);
+}
+
+input:disabled
+{
+    background: rgba(100, 100, 100, 0.4);
+    border-color: rgba(160, 160, 160, 0.4);
+    color: rgb(180, 180, 180);
+    filter: blur(0.5px);
 }
