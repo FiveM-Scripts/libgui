@@ -27,16 +27,16 @@ AddEventHandler("libgui:init", function(interfaceBuilder)
 
     container.addItemSeperator()
 
-    local button1 = container.addItemButton(60, 100, "Disabled")
+    local button1 = container.addItemButton(100, 60, "Disabled")
     button1.setDisabled(true)
 
     container.addItemSeperator()
 
-    container.addItemButton(50, 80, "Create sub-window", function() window2.createSubWindow(-1, -1, "HYPE") end)
+    container.addItemButton(80, 50, "Create sub-window", function() window2.createSubWindow(-1, -1, "HYPE") end)
 
     window2.addItemSeperator()
 
-    local button = window2.addItemButton(30, 80, "Disabled")
+    local button = window2.addItemButton(80, 30, "Disabled")
     button.setDisabled(true)
 end)
 

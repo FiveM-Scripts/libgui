@@ -31,16 +31,16 @@ on("libgui:init", function(interfaceBuilder)
 
     container.addItemSeperator();
 
-    let button1 = container.addItemButton(60, 100, "Disabled")[0];
+    let button1 = container.addItemButton(100, 60, "Disabled")[0];
     button1.setDisabled(true);
 
     container.addItemSeperator();
 
-    container.addItemButton(50, 80, "Create sub-window", function() { window2.createSubWindow(-1, -1, "HYPE") } )[0];
+    container.addItemButton(80, 50, "Create sub-window", function() { window2.createSubWindow(-1, -1, "HYPE") } )[0];
 
     window2.addItemSeperator();
 
-    let button2 = window2.addItemButton(30, 80, "Disabled 2")[0];
+    let button2 = window2.addItemButton(80, 30, "Disabled 2")[0];
     button2.setDisabled(true);
 });
 

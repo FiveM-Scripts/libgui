@@ -45,9 +45,9 @@ function buildInterface()
             return visibleInterfaceId == id;
         },
 
-        createWindow: function(height, width, title)
+        createWindow: function(width, height, title)
         {
-            return buildContainer(id, -1, height, width, title);
+            return buildContainer(id, -1, width, height, title);
         }
     };
 
@@ -59,19 +59,19 @@ function buildInterface()
  * Creates either a new window or a container inside a window
  * @param {Id of interface} interfaceId
  * @param {Id of window to create container in, set to -1 to create window instead} windowId
- * @param {Specified height} height 
- * @param {Specified width} width 
+ * @param {*} width 
+ * @param {*} height 
  * @param {Title of new window, ignore if creating container} title
  * @param {(Window only) Id of parent window for sub windows to disable input until child window is closed} parentId
  * @returns New Window or Container object
  */
-function buildContainer(interfaceId, windowId, height, width, title, parentId)
+function buildContainer(interfaceId, windowId, width, height, title, parentId)
 {
     let isWindow = windowId == -1;
-    if (typeof height != "number" || height < 0)
-        height = 150;
     if (typeof width != "number" || width < 0)
         width = 400;
+    if (typeof height != "number" || height < 0)
+        height = 150;
     if (typeof title != "string")
         title = "";
 
@@ -108,10 +108,10 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
                 return buildContainer(interfaceId, id, 0, 0);
         },
 
-        createSubWindow: function(height, width, title)
+        createSubWindow: function(width, height, title)
         {
             if (isWindow)
-                return buildContainer(interfaceId, -1, height, width, title, id);
+                return buildContainer(interfaceId, -1, width, height, title, id);
         },
 
         /* Windows and Containers */
@@ -121,26 +121,26 @@ function buildContainer(interfaceId, windowId, height, width, title, parentId)
             return buildWindowItem(interfaceId, isWindow ? id : windowId, 1, { text: text }, !isWindow ? id : null);
         },
 
-        addItemButton: function(height, width, text, onClick)
+        addItemButton: function(width, height, text, onClick)
         {
-            return buildWindowItem(interfaceId, isWindow ? id : windowId, 2, { height: height, width: width, text: text, onClick: onClick }, !isWindow ? id : null);
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 2, { width: width, height: height, text: text, onClick: onClick }, !isWindow ? id : null);
         },
 
-        addItemSeperator: function(height, width)
+        addItemSeperator: function(width, height)
         {
-            return buildWindowItem(interfaceId, isWindow ? id : windowId, 3, { height: height, width: width }, !isWindow ? id : null);
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 3, { width: width, height: height }, !isWindow ? id : null);
         },
 
-        addItemTextField: function(height, width, type)
+        addItemTextField: function(width, height, type)
         {
-            return buildWindowItem(interfaceId, isWindow ? id : windowId, 4, { height: height, width: width, type: type }, !isWindow ? id : null);
+            return buildWindowItem(interfaceId, isWindow ? id : windowId, 4, { width: width, height: height, type: type }, !isWindow ? id : null);
         }
     }
 
     if (isWindow)
-        SendNUIMessage({ createWindow: id, interfaceId: interfaceId, height: height, width: width, title: title, parentId: parentId ? parentId : false });
+        SendNUIMessage({ createWindow: id, interfaceId: interfaceId, width: width, height: height, title: title, parentId: parentId ? parentId : false });
     else
-        SendNUIMessage({ createContainer: id, interfaceId: interfaceId, windowId: windowId, height: height, width: width, title: title });
+        SendNUIMessage({ createContainer: id, interfaceId: interfaceId, windowId: windowId, width: width, height: height, title: title });
     
     return container;
 }
@@ -179,10 +179,10 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
         return itemText;
         
         case 2: // Button Item
-        if (typeof data.height != "number" || data.height <= 0)
-            data.height = 30;
         if (typeof data.width != "number" || data.width <= 0)
             data.width = 75;
+        if (typeof data.height != "number" || data.height <= 0)
+            data.height = 30;
         data.text = checkItemText(data.text);
         if (typeof data.onClick == "function")
             windows[windowId].items[id].onClick = data.onClick;
@@ -201,20 +201,20 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
             }
         }
 
-        sendData.height = data.height;
         sendData.width = data.width;
+        sendData.height = data.height;
         sendData.text = data.text;
         SendNUIMessage(sendData);
         return itemButton;
 
         case 3: // Seperator Item
-        if (typeof data.height != "number" || data.height < 0)
-            data.height = 10;
         if (typeof data.width != "number" || data.width < 0)
             data.width = 10;
+        if (typeof data.height != "number" || data.height < 0)
+            data.height = 10;
 
-        sendData.height = data.height;
         sendData.width = data.width;
+        sendData.height = data.height;
         SendNUIMessage(sendData);
         break;
 
@@ -224,10 +224,10 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
             1: Decimals only
             2: Password (hide actual text)
         */
-        if (typeof data.height != "number" || data.height <= 0)
-            data.height = 30;
         if (typeof data.width != "number" || data.width <= 0)
             data.width = 150;
+        if (typeof data.height != "number" || data.height <= 0)
+            data.height = 30;
         if (typeof data.type != "number" || data.type <= 0)
             data.type = 0;
 
@@ -236,8 +236,8 @@ function buildWindowItem(interfaceId, windowId, itemType, data, containerId)
 
         }
 
-        sendData.height = data.height;
         sendData.width = data.width;
+        sendData.height = data.height;
         sendData.type = data.type;
         SendNUIMessage(sendData);
         return itemTextEntry;

@@ -43,11 +43,11 @@ function init()
         {
             interfaces[data.interfaceId].windows[data.createWindow] =
             {
-                elementData: createWindowElement(data.interfaceId, data.createWindow, data.height, data.width, data.title, data.parentId),
+                elementData: createWindowElement(data.interfaceId, data.createWindow, data.width, data.height, data.title, data.parentId),
                 items: {},
                 containers: {}
             };
-            console.log("Created window with id " + data.createWindow + " (dimensions: " + data.height + " " + data.width + ")");
+            console.log("Created window with id " + data.createWindow + " (dimensions: " + data.width + " " + data.height + ")");
         }
         else if (data.createContainer)
         {
@@ -61,41 +61,7 @@ function init()
             console.log("Created container with id " + data.createContainer + " inside window with id " + data.windowId);
         }
         else if (data.addWindowItem)
-        {
-            let window = interfaces[data.interfaceId].windows[data.windowId];
-            if (!window)
-                return;
-
-            switch (data.addWindowItem)
-            {
-            case 1: // Text item
-            let textItemElement = $("<p>" + data.text + "</p>");
-            appendItemToWindow(textItemElement, data);
-            console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
-            break;
-
-            case 2: // Button item
-            let buttonItemElement = $("<button>" + data.text + "</button>");
-            buttonItemElement.height(data.height);
-            buttonItemElement.width(data.width);
-            buttonItemElement.click(function()
-            {
-                console.log("Clicked button id " + data.itemId);
-                sendData("onClick", { windowId: data.windowId, itemId: data.itemId });
-            });
-            appendItemToWindow(buttonItemElement, data);
-            console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
-            break;
-
-            case 3: // Seperator item
-            let seperatorItemElement = $("<div></div>");
-            seperatorItemElement.height(data.height);
-            seperatorItemElement.width(data.width);
-            appendItemToWindow(seperatorItemElement, data);
-            console.log("Added seperator item with id " + data.itemId + " to window with id " + data.windowId);
-            break;
-            }
-        }
+            createWindowItem(data);
         else if (data.setItemText)
         {
             let window = interfaces[data.interfaceId].windows[data.windowId];
@@ -216,24 +182,24 @@ function hideAllVisibleWindows()
  * Creates a new window element
  * @param {Id of interface} interfaceId 
  * @param {Id to use for window} windowId 
- * @param {Height of window} height 
  * @param {Width of window} width 
+ * @param {Height of window} height 
  * @param {Title of window} title 
  * @param {Id of parent window for sub windows} parentId 
  * @returns Object containing window element data
  */
-function createWindowElement(interfaceId, windowId, height, width, title, parentId)
+function createWindowElement(interfaceId, windowId, width, height, title, parentId)
 {
-    if (typeof height != "number" || height < 0)
-        height = 150;
     if (typeof width != "number" || width < 0)
         width = 400;
+    if (typeof height != "number" || height < 0)
+        height = 150;
     if (typeof title != "string" || !title)
         title = "";
 
     let windowElement = $("<div class='window'></div>");
-    windowElement.height(height);
     windowElement.width(width);
+    windowElement.height(height);
     rootElement.append(windowElement);
     let titleElement = $("<div class='windowtitle'></div>");
     windowElement.append(titleElement);
@@ -291,18 +257,26 @@ function createWindowElement(interfaceId, windowId, height, width, title, parent
         delete interfaces[interfaceId].windows[windowId];
     });
 
+    let windowSize = { width: windowElement.width(), height: windowElement.height() };
+
+    // Automatic window placement
     if (parentId)
     {
         let parentWindowElement = interfaces[interfaceId].windows[parentId].elementData.windowElement;
         parentWindowElement.attr("disabled", true);
         
         let parentWindowPos = parentWindowElement.position();
-        let parentWindowHeight = parentWindowElement.height();
-        let parentWindowWidth = parentWindowElement.width();
-        let windowHeight = windowElement.height();
-        let windowWidth = windowElement.width();
-        windowElement.css("top", (parentWindowPos.top + parentWindowHeight / 2) - windowHeight / 2);
-        windowElement.css("left", (parentWindowPos.left + parentWindowWidth / 2) - windowWidth / 2);
+        let parentWindowSize = { width: parentWindowElement.width(), height: parentWindowElement.height() };
+        windowElement.css("left", (parentWindowPos.left + parentWindowSize.width / 2) - windowSize.width / 2);
+        windowElement.css("top", (parentWindowPos.top + parentWindowSize.height / 2) - windowSize.height / 2);
+    }
+    else
+    {
+        let rootElementSize = { width: rootElement.width(), height: rootElement.height() };
+        let rootCenterPos = { x: rootElementSize.width / 2 - windowSize.width / 2, y: rootElementSize.height / 2 - windowSize.height / 2 };
+        let maxOffset = { x: rootElementSize.width / 5, y: rootElementSize.height / 5 };
+        windowElement.css("left", rootCenterPos.x + randInt(-maxOffset.x, maxOffset.x));
+        windowElement.css("top", rootCenterPos.y + randInt(-maxOffset.y, maxOffset.y));
     }
 
     if (interfaceId == visibleInterfaceId)
@@ -311,6 +285,47 @@ function createWindowElement(interfaceId, windowId, height, width, title, parent
         windowElement.hide();
     
     return windowData;
+}
+
+/**
+ * Creates a new item inside a window
+ * @param {*} data 
+ */
+function createWindowItem(data)
+{
+    let window = interfaces[data.interfaceId].windows[data.windowId];
+    if (!window)
+        return;
+
+    switch (data.addWindowItem)
+    {
+    case 1: // Text item
+    let textItemElement = $("<p>" + data.text + "</p>");
+    appendItemToWindow(textItemElement, data);
+    console.log("Added text item with id " + data.itemId + " to window with id " + data.windowId);
+    break;
+
+    case 2: // Button item
+    let buttonItemElement = $("<button>" + data.text + "</button>");
+    buttonItemElement.width(data.width);
+    buttonItemElement.height(data.height);
+    buttonItemElement.click(function()
+    {
+        console.log("Clicked button id " + data.itemId);
+        sendData("onClick", { windowId: data.windowId, itemId: data.itemId });
+    });
+    appendItemToWindow(buttonItemElement, data);
+    console.log("Added button item with id " + data.itemId + " to window with id " + data.windowId);
+    break;
+
+    case 3: // Seperator item
+    let seperatorItemElement = $("<div></div>");
+    seperatorItemElement.width(data.width);
+    seperatorItemElement.height(data.height);
+    appendItemToWindow(seperatorItemElement, data);
+    console.log("Added seperator item with id " + data.itemId + " to window with id " + data.windowId);
+    break;
+    }
 }
 
 /**
@@ -351,4 +366,14 @@ function sendData(name, data = {})
 function getMousePos()
 {
     return { x: event.pageX, y: event.pageY };
+}
+
+/**
+ * Returns a random integer between min and max (both inclusive)
+ * @param {*} min 
+ * @param {*} max
+ */
+function randInt(min, max)
+{
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
