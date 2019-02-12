@@ -261,6 +261,9 @@ function createWindowElement(interfaceId, windowId, width, height, title, parent
         sendData("windowClosed", { windowId: windowId });
         delete interfaces[interfaceId].windows[windowId];
         console.log("Closed window with id " + windowId);
+
+        if (visibleWindows.length == 0)
+            hideInterface();
     });
 
     let windowSize = { width: windowElement.width(), height: windowElement.height() };
