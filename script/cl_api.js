@@ -1,6 +1,7 @@
 let nuiInitialized = false;
 let visibleInterfaceId = 0;
 let windows = {};
+let interfacesInfo = {};
 
 setImmediate(async function()
 {
@@ -37,7 +38,8 @@ function buildInterface()
     {
         show: function()
         {
-            showInterface(id);
+            if (interfacesInfo[id].windowsAmount > 0)
+                showInterface(id);
         },
 
         isVisible: function()
@@ -45,12 +47,23 @@ function buildInterface()
             return visibleInterfaceId == id;
         },
 
+        getWindowsAmount: function()
+        {
+            return interfacesInfo[id].windowsAmount;
+        },
+
         createWindow: function(width, height, title)
         {
             return buildContainer(id, -1, width, height, title);
+        },
+
+        setClosable: function(state)
+        {
+            SendNUIMessage({ setInterfaceClosable: true, state: state, interfaceId: id });
         }
     };
 
+    interfacesInfo[id] = { windowsAmount: 0 }
     SendNUIMessage({ createInterface: id });
     return interface;
 }
@@ -78,7 +91,10 @@ function buildContainer(interfaceId, windowId, width, height, title, parentId)
     let id = uuidv4();
 
     if (isWindow)
+    {
         windows[id] = { items: {} };
+        interfacesInfo[interfaceId].windowsAmount++;
+    }
 
     let container =
     {
@@ -331,6 +347,7 @@ on("__cfx_nui:windowClosed", function(data)
     if (windows[data.windowId].onClose)
         windows[data.windowId].onClose();
     delete windows[data.windowId];
+    interfacesInfo[data.interfaceId].windowsAmount--;
 });
 
 /**

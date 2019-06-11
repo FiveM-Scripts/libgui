@@ -36,9 +36,11 @@ function init()
             showInterface(data.showInterface);
         else if (data.createInterface)
         {
-            interfaces[data.createInterface] = { windows: {} };
+            interfaces[data.createInterface] = { windows: {}, closable: true };
             console.log("Created interface with id " + data.createInterface);
         }
+        else if (data.setInterfaceClosable)
+            interfaces[data.interfaceId].closable = data.state;
         else if (data.createWindow)
         {
             interfaces[data.interfaceId].windows[data.createWindow] =
@@ -92,7 +94,7 @@ function init()
 
     documentElement.keyup(function(event)
     {
-        if (event.which == 27) // ESC
+        if (event.which == 27 && interfaces[visibleInterfaceId].closable) // ESC
             hideInterface();
     });
 
@@ -103,7 +105,7 @@ function init()
             isDraggingWindow = false;
             hasDraggedWindow = false;
         }
-        else if (event.target == this) // Close on click anywhere
+        else if (event.target == this && interfaces[visibleInterfaceId].closable) // Close on click anywhere
             hideInterface();
     });
 
@@ -258,8 +260,20 @@ function createWindowElement(interfaceId, windowId, width, height, title, parent
         if (parentId)
             interfaces[interfaceId].windows[parentId].elementData.windowElement.attr("disabled", false);
 
-        sendData("windowClosed", { windowId: windowId });
+        sendData("windowClosed", { interfaceId: interfaceId, windowId: windowId });
+
+        // Remove from visibleWindows array by finding window object first
+        if (visibleWindows.length == 1)
+            visibleWindows.splice(0, 1);
+        else
+            visibleWindows.forEach(function(window, index)
+            {
+                if (interfaces[interfaceId].windows[windowId].windowData == window.windowData)
+                    visibleWindows.splice(index, 1);
+            });
+
         delete interfaces[interfaceId].windows[windowId];
+
         console.log("Closed window with id " + windowId);
 
         if (visibleWindows.length == 0)
