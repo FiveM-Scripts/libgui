@@ -14,7 +14,6 @@ A GUI library for FiveM, featuring:
 
 **Important: the resource has to be started after all the other resources that depend on it.**
 
-
 ## Documentation
 See the [documentation](https://github.com/FiveM-Scripts/libgui/wiki/Documentation).
 
